@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Log Messages</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        h1 {
+            color: #333;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+            border: 1px solid #ddd;
+        }
+        th {
+            background-color: #007BFF; /* 修改为蓝色 */
+            color: white;
+        }
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+        tr:hover {
+            background-color: #ddd;
+        }
+        .pagination {
+            padding: 10px 0;
+        }
+        .pagination a {
+            margin: 0 5px;
+            text-decoration: none;
+            color: #007BFF;
+        }
+        .pagination a:hover {
+            text-decoration: underline;
+        }
+        .button {
+            display: inline-block;
+            padding: 10px 15px;
+            background-color: #007BFF;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        .button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+<h1>日志记录</h1>
+
+<a href="/index" class="button">返回首页</a>
+
+<table>
+    <tr>
+        <th>Level</th>
+        <th>Time</th>
+        <th>Message</th> <!-- 去掉 Caller 列 -->
+    </tr>
+    {{range .Entries}}
+    <tr>
+        <td>{{.Level}}</td>
+        <td>{{.Time}}</td>
+        <td>{{.Msg}}</td> <!-- 去掉 Caller 列 -->
+    </tr>
+    {{end}}
+</table>
+
+<div class="pagination">
+    {{if gt .CurrentPage 1}}
+    <a href="?page={{sub .CurrentPage 1}}">上一页</a>
+    {{end}}
+    <span> 第 {{.CurrentPage}} 页 / 共 {{.TotalPages}} 页 </span>
+    {{if lt .CurrentPage .TotalPages}}
+    <a href="?page={{add .CurrentPage 1}}">下一页</a>
+    {{end}}
+</div>
+</body>
+</html>

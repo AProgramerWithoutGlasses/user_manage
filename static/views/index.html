@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="zh">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>用户表格</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f9f9f9;
+            margin: 0;
+            display: flex;
+        }
+
+        .sidebar {
+            width: 250px;
+            background-color: #f0f5f8;
+            color: #333;
+            padding: 20px;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+            height: 100vh;
+        }
+
+        .account-info {
+            background-color: #e0e7ee;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+        }
+
+        .account-info h3 {
+            margin: 0;
+            font-size: 1.5em;
+        }
+
+        .account-info img {
+            width: 110px;
+            height: 110px;
+            border-radius: 50%;
+            margin-left: 10px;
+            cursor: pointer;
+        }
+
+        .module-functions {
+            padding: 15px;
+        }
+
+        .module-functions h3 {
+            margin-bottom: 10px;
+        }
+
+        .sidebar ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        .sidebar ul li {
+            margin: 10px 0;
+        }
+
+        .sidebar ul li a {
+            color: #007bff;
+            text-decoration: none;
+            transition: background-color 0.3s, box-shadow 0.3s;
+            padding: 10px;
+            display: block;
+            border-radius: 5px;
+        }
+
+        .sidebar ul li a:hover {
+            background-color: rgba(0, 123, 255, 0.1);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .content {
+            flex: 1;
+            padding: 20px;
+        }
+
+        h2 {
+            text-align: center;
+            color: #333;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            background-color: #fff;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        th,
+        td {
+            padding: 12px;
+            border: 1px solid #e0e0e0;
+            text-align: left;
+        }
+
+        th {
+            background-color: #007bff;
+            color: white;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        tr:hover {
+            background-color: #e9ecef;
+        }
+
+        button {
+            padding: 6px 12px;
+            margin: 2px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+            color: white;
+        }
+
+        .delete-button {
+            background-color: #dc3545;
+            color: white;
+        }
+
+        .delete-button:hover {
+            background-color: #c82333;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.4);
+            padding-top: 60px;
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 5% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 500px;
+            border-radius: 8px;
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+    </style>
+    <script type="text/javascript" src="/static/js/jquery-1.7.2.js"></script>
+</head>
+
+<body>
+
+<div class="sidebar" style="position: relative;">
+    <div class="account-info">
+        <div>
+            <h3>账户信息</h3>
+            <p>用户: {{.Data.MyUsername}}</p>
+            <p>权限: {{.Data.MyPermission}}</p>
+        </div>
+        <img src="{{.Data.MyHead}}" alt="用户头像" id="user-avatar" onclick="document.getElementById('avatar-input').click();">
+        <input type="file" id="avatar-input" style="display:none;" accept="image/*" onchange="previewImage(event)">
+    </div>
+    <div class="module-functions">
+        <h3>模块功能</h3>
+        <ul>
+            <li><a href="/index">用户管理</a></li>
+            <li><a href="/index/logmsg">日志查看</a></li>
+        </ul>
+    </div>
+    <button id="logoutButton" style="background-color: #dc3545; color: white; border: none; padding: 10px; border-radius: 5px; cursor: pointer; position: absolute; bottom: 60px; left: 20px;">
+        返回登陆页面
+    </button>
+</div>
+
+<div class="content">
+    <h2>用户表格</h2>
+    <table>
+        <thead>
+        <tr>
+            <th>账号</th>
+            <th>姓名</th>
+            <th>年龄</th>
+            <th>性别</th>
+            <th>权限</th>
+            {{if eq .Data.MyPermission "manager"}}<th>操作</th>{{end}}
+        </tr>
+        </thead>
+        <tbody>
+        {{range .Data.Users}}
+        <tr>
+            <td>{{.Username}}</td>
+            <td>{{.Name}}</td>
+            <td>{{.Age}}</td>
+            <td>{{.Gender}}</td>
+            <td>{{.Permission}}</td>
+            {{if eq $.Data.MyPermission "manager"}}
+            <td>
+                <button onclick="openModal('{{.Username}}', '{{.Name}}', '{{.Age}}', '{{.Gender}}', '{{.Permission}}')">编辑</button>
+                <button class="delete-button" onclick="deleteUser('{{.Username}}')">删除</button>
+            </td>
+            {{end}}
+        </tr>
+        {{end}}
+        </tbody>
+    </table>
+
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <h2>编辑用户信息</h2>
+            <form id="editForm">
+                <label for="username">账号:</label>
+                <input type="text" id="username" name="username" required><br>
+                <label for="name">姓名:</label>
+                <input type="text" id="name" name="name" required><br>
+                <label for="age">年龄:</label>
+                <input type="number" id="age" name="age" required><br>
+                <label for="gender">性别:</label>
+                <input type="text" id="gender" name="gender" required><br>
+                <label for="permission">权限:</label> <!-- 新增权限字段 -->
+                <input type="text" id="permission" name="permission" required><br>
+                <button id="submit1" type="button">确定</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        let originUsername = "";
+
+        function openModal(username, name, age, gender, permission) {
+            originUsername = username;
+            document.getElementById('username').value = username;
+            document.getElementById('name').value = name;
+            document.getElementById('age').value = age;
+            document.getElementById('gender').value = gender;
+            document.getElementById('permission').value = permission; // 设置权限字段的值
+
+            document.getElementById('editModal').style.display = "block";
+        }
+
+        function closeModal() {
+            document.getElementById('editModal').style.display = "none";
+        }
+
+        function previewImage(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('user-avatar').src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+
+                const formData = new FormData();
+                formData.append('avatar', file);
+
+                $.ajax({
+                    url: '/head_update',
+                    type: 'POST',
+                    data: formData,
+                    processData: false, // 不处理数据
+                    contentType: false, // 不设置内容类型
+                    success: function(data) {
+                        console.log('头像上传成功:', data);
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('上传出错:', error);
+                    }
+                });
+                
+            }
+        }
+
+        document.getElementById('submit1').onclick = async function (event) {
+            event.preventDefault();
+
+            const username = document.getElementById('username').value;
+            const name = document.getElementById('name').value;
+            const age = parseInt(document.getElementById('age').value, 10); // 将年龄转换为整数
+            const gender = document.getElementById('gender').value;
+            const permission = document.getElementById('permission').value; // 获取权限字段值
+
+            $.ajax({
+                url: '/edit',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({ originUsername, username, name, age, gender, permission }), // 包含权限字段
+                success: function (response) {
+                    $('body').html(response);
+                },
+                error: function (xhr, status, error) {
+                    console.error('请求失败:', error);
+                }
+            });
+        };
+        async function deleteUser(username) {
+            if (confirm("确认删除该用户吗？")) {
+                $.ajax({
+                    url: '/delete',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify({ username }),
+                    success: function (response) {
+                        $('body').html(response);
+                    },
+                    error: function (xhr, status, error) {
+                        console.error('请求失败:', error);
+                    }
+                });
+            }
+        }
+
+        document.getElementById('logoutButton').onclick = function() {
+            window.location.href = '/logout';
+        };
+
+        {{if .Msg}}
+
+        var msg = "{{.Msg}}";
+        alert(msg);
+        if (msg === "请您先登录") {
+            window.location.href = '/login';
+        } else {
+            window.location.reload()
+        }
+        {{end}}
+    </script>
+
+</div>
+
+</body>
+</html>
